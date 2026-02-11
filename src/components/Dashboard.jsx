@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { supabase } from '../config/supabaseClient'
 import Tracker from './Tracker'
+import History from './History'
 import './Dashboard.css'
 
 function Dashboard({ user, onLogout }) {
+  const [view, setView] = useState('dashboard') // 'dashboard' | 'history'
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -18,9 +21,20 @@ function Dashboard({ user, onLogout }) {
         </div>
         
         <nav className="sidebar-nav">
-          <button className="nav-item active">
+          <button 
+            className={`nav-item ${view === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setView('dashboard')}
+          >
             <span className="icon"></span>
             Panel Principal
+          </button>
+          
+          <button 
+            className={`nav-item ${view === 'history' ? 'active' : ''}`}
+            onClick={() => setView('history')}
+          >
+            <span className="icon"></span>
+            Historial
           </button>
         </nav>
 
@@ -36,7 +50,7 @@ function Dashboard({ user, onLogout }) {
       <main className="main-content">
         <header className="top-bar">
           <div className="search-bar">
-            <h1>Panel de Control</h1>
+            <h1>{view === 'dashboard' ? 'Panel de Control' : 'Historial de Jornadas'}</h1>
           </div>
           <div className="user-profile">
             <div className="user-info-text">
@@ -49,30 +63,39 @@ function Dashboard({ user, onLogout }) {
           </div>
         </header>
 
-        <div className="dashboard-grid">
-          {/* Tracker Card - Designed to match 'Air Conditioner' or 'Weather' cards */}
-          <div className="dashboard-card main-tracker">
-            <Tracker user={user} />
-          </div>
+        {view === 'dashboard' ? (
+          <div className="dashboard-grid">
+            {/* Tracker Card */}
+            <div className="dashboard-card main-tracker">
+              <Tracker user={user} />
+            </div>
 
-          {/* Session Info Card */}
-          <div className="dashboard-card session-info">
-            <div className="card-header">
-              <h3>Detalles de Sesión</h3>
-              <span className="badge">Activo</span>
-            </div>
-            <div className="info-content">
-              <div className="info-item">
-                <span className="label">ID Usuario</span>
-                <span className="value">{user?.id.slice(0, 8)}...</span>
+            {/* Session Info Card */}
+            <div className="dashboard-card session-info">
+              <div className="card-header">
+                <h3>Detalles de Sesión</h3>
+                <span className="badge">Activo</span>
               </div>
-              <div className="info-item">
-                <span className="label">Email</span>
-                <span className="value">{user?.email}</span>
+              <div className="info-content">
+                <div className="info-item">
+                  <span className="label">ID Usuario</span>
+                  <span className="value">{user?.id.slice(0, 8)}...</span>
+                </div>
+                <div className="info-item">
+                  <span className="label">Email</span>
+                  <span className="value">{user?.email}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="dashboard-grid">
+            {/* History Card - Full Width */}
+            <div className="dashboard-card" style={{ gridColumn: '1 / -1' }}>
+              <History user={user} />
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )
