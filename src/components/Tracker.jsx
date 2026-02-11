@@ -191,5 +191,5 @@ function Tracker({ user }) {
     </div>
   )
 }
-
+ 
 export default Tracker
