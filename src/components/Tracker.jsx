@@ -192,5 +192,4 @@ function Tracker({ user }) {
   )
 }
 
-
 export default Tracker
