@@ -9,19 +9,20 @@
 }
 
 .auth-card {
-  background-color: #242424;
+  background-color: var(--bg-card);
   padding: 4rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   max-width: 800px;
   width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .auth-card h2 {
   font-size: 2rem;
   margin-top: 0;
   margin-bottom: 2rem;
-  color: #646cff;
+  color: var(--accent-primary);
   text-align: center;
 }
 
@@ -32,7 +33,7 @@
 .form-group label {
   display: block;
   margin-bottom: 0.8rem;
-  color: rgba(255, 255, 255, 0.87);
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 1.1rem;
 }
@@ -40,18 +41,19 @@
 .form-group input {
   width: 100%;
   padding: 1rem;
-  border: 1px solid #3a3a3a;
-  border-radius: 8px;
-  background-color: #1a1a1a;
-  color: rgba(255, 255, 255, 0.87);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
   font-size: 1.1rem;
   box-sizing: border-box;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #646cff;
+  border-color: var(--accent-primary);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .form-group input:disabled {
@@ -62,19 +64,21 @@
 .auth-card button[type="submit"] {
   width: 100%;
   padding: 1rem;
-  background-color: #646cff;
-  color: white;
+  background-color: var(--accent-primary);
+  color: var(--bg-dark);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 1.2rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   margin-top: 1rem;
 }
 
 .auth-card button[type="submit"]:hover:not(:disabled) {
-  background-color: #535bf2;
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.2);
 }
 
 .auth-card button[type="submit"]:disabled {
@@ -83,34 +87,36 @@
 }
 
 .error-message {
-  background-color: #ff4444;
-  color: white;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
+  background-color: rgba(255, 139, 148, 0.1);
+  color: var(--accent-secondary);
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
   font-size: 0.9rem;
+  border: 1px solid var(--accent-secondary);
 }
 
 .success-message {
-  background-color: #00aa00;
-  color: white;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
+  background-color: rgba(168, 230, 207, 0.1);
+  color: var(--accent-primary);
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
   font-size: 0.9rem;
+  border: 1px solid var(--accent-primary);
 }
 
 .auth-toggle {
   margin-top: 1.5rem;
   text-align: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
 .link-button {
   background: none;
   border: none;
-  color: #646cff;
+  color: var(--accent-primary);
   cursor: pointer;
   padding: 0;
   font-size: 0.9rem;
@@ -118,5 +124,6 @@
 }
 
 .link-button:hover {
-  color: #535bf2;
+  text-decoration: none;
+  filter: brightness(1.1);
 }

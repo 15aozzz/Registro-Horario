@@ -1,100 +1,218 @@
-.dashboard-container {
+.app-container {
+  display: flex;
   min-height: 100vh;
+  background-color: var(--bg-dark);
 }
 
-.dashboard-header {
-  background-color: #242424;
-  padding: 2rem 3rem;
+/* --- Sidebar --- */
+.sidebar {
+  width: 250px;
+  background-color: var(--bg-sidebar);
+  padding: 2rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #3a3a3a;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.dashboard-header h1 {
-  margin: 0;
-  color: #646cff;
-  font-size: 2.2rem;
+.sidebar-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 3rem;
+  padding-left: 1rem;
 }
 
-.user-info {
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.nav-item {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
 }
 
-.user-info span {
-  color: rgba(255, 255, 255, 0.87);
+.nav-item:hover, .nav-item.active {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.nav-item .icon {
+  font-family: 'Material Icons', sans-serif; /* Fallback if not loaded, simple text for now */
   font-size: 1.2rem;
+}
+
+.sidebar-footer {
+  margin-top: auto;
 }
 
 .logout-button {
-  padding: 0.8rem 1.5rem;
-  background-color: #ff4444;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 1.1rem;
-  transition: background-color 0.2s;
-}
-
-.logout-button:hover {
-  background-color: #cc0000;
-}
-
-.dashboard-main {
-  padding: 3rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.welcome-card {
-  background-color: #242424;
-  padding: 3rem;
-  border-radius: 16px;
-  text-align: center;
-}
-
-.welcome-card h2 {
-  color: #646cff;
-  margin-top: 0;
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.welcome-card p {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.4rem;
-}
-
-.info-box {
-  background-color: #1a1a1a;
-  padding: 2rem;
-  border-radius: 12px;
-  margin-top: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  background-color: transparent;
+  color: var(--text-secondary);
+  padding: 1rem;
   text-align: left;
 }
 
-.info-box h3 {
-  margin-top: 0;
-  color: rgba(255, 255, 255, 0.87);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+.logout-button:hover {
+  color: var(--accent-secondary);
+  background-color: rgba(255, 139, 148, 0.1);
 }
 
-.info-box p {
-  margin: 0.8rem 0;
-  color: rgba(255, 255, 255, 0.6);
+/* --- Main Content --- */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.search-bar h1 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info-text {
+  text-align: right;
+}
+
+.user-name {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-email {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--accent-primary);
+  color: var(--bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
   font-size: 1.2rem;
 }
 
-.info-box code {
-  background-color: #2a2a2a;
+/* --- Dashboard Grid --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.dashboard-card {
+  background-color: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-tracker {
+  grid-column: span 1; 
+  /* Make tracker card dominant if needed, currently 1x1 */
+}
+
+/* --- Session Info Card --- */
+.session-info {
+  justify-content: flex-start;
+  gap: 2rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 2rem;
+}
+
+.card-header h3 {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.badge {
+  background-color: rgba(168, 230, 207, 0.1);
+  color: var(--accent-primary);
   padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  color: #646cff;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 1.5rem 0;
+  align-items: center;
+}
+
+.info-item .label {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+}
+
+.info-item .value {
+  color: var(--text-primary);
   font-family: monospace;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.upgrade-banner {
+  background: linear-gradient(135deg, var(--accent-primary), #8bd3c7);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-top: 1rem;
+  color: var(--bg-dark);
+}
+
+.upgrade-banner h4 {
+  color: var(--bg-dark);
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.upgrade-banner p {
+  color: rgba(15, 16, 20, 0.7);
+  margin: 0;
+  font-size: 0.9rem;
 }
