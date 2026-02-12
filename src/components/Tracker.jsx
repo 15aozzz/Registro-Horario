@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../config/supabaseClient'
 import './Tracker.css'
 
@@ -7,11 +7,41 @@ function Tracker({ user }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  // Cargar sesión activa al montar el componente
+  useEffect(() => {
+    const checkActiveSession = async () => {
+      setLoading(true)
+      try {
+        // Buscar si hay alguna sesión que no esté completada (active o paused)
+        const { data, error } = await supabase
+          .from('work_sessions')
+          .select('*')
+          .eq('user_id', user.id)
+          .in('status', ['active', 'paused'])
+          .order('start_time', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (error && error.code !== 'PGRST116') throw error
+        if (data) setActiveSession(data)
+      } catch (err) {
+        console.error("Error verificando sesión:", err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkActiveSession()
+  }, [user])
+
   // Iniciar Jornada
   const handleStart = async () => {
     setLoading(true)
     setError(null)
     try {
+      // Verificar doble seguridad: no permitir si ya hay activa (aunque la UI lo oculte)
+      if (activeSession) return
+
       const { data, error } = await supabase
         .from('work_sessions')
         .insert([
@@ -42,7 +72,31 @@ function Tracker({ user }) {
         .from('work_sessions')
         .update({ 
           status: 'paused',
-          pause_time: new Date().toISOString() // timestamp de pausa
+          pause_time: new Date().toISOString()
+        })
+        .eq('id', activeSession.id)
+        .select()
+        .single()
+
+      if (error) throw error
+      setActiveSession(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Reanudar Jornada
+  const handleResume = async () => {
+    if (!activeSession) return
+    setLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('work_sessions')
+        .update({ 
+          status: 'active',
+          pause_time: null // Opcional: limpiar pausa anterior o mantener histórico
         })
         .eq('id', activeSession.id)
         .select()
@@ -73,7 +127,7 @@ function Tracker({ user }) {
         .single()
 
       if (error) throw error
-      setActiveSession(null) // Limpiar sesión activa al finalizar
+      setActiveSession(null)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -116,25 +170,7 @@ function Tracker({ user }) {
             
             {activeSession.status === 'paused' && (
                <button 
-               onClick={() => {
-                 // Reanudar es reactivar la sesión (podría requerir lógica extra, 
-                 // por ahora simplificamos reutilizando handleStart o update a active)
-                 // Como MVP simple, volver a Iniciar Jornada crea nueva sesión.
-                 // Si queremos reanudar, deberíamos actualizar status a 'active'.
-                 // Para este MVP, asumiremos que Pausa es un estado temporal.
-                 // Vamos a implementar reanudar simple:
-                 const resume = async () => {
-                    setLoading(true);
-                    const { data, error } = await supabase
-                      .from('work_sessions')
-                      .update({ status: 'active', pause_time: null }) // Limpiamos pausa o guardamos logica compleja
-                      .eq('id', activeSession.id)
-                      .select().single();
-                    if(!error) setActiveSession(data);
-                    setLoading(false);
-                 };
-                 resume();
-               }} 
+               onClick={handleResume} 
                disabled={loading}
                className="btn-resume"
              >
