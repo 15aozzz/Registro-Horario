@@ -16,6 +16,7 @@ function History({ user }) {
           .order('start_time', { ascending: false })
 
         if (error) throw error
+
         setSessions(data)
       } catch (error) {
         console.error('Error cargando historial:', error.message)
@@ -35,12 +36,23 @@ function History({ user }) {
     })
   }
 
-  const calculateDuration = (start, end) => {
-    if (!end) return 'En curso'
-    const diff = new Date(end) - new Date(start)
-    const hours = Math.floor(diff / 3600000)
-    const minutes = Math.floor((diff % 3600000) / 60000)
-    return `${hours}h ${minutes}m`
+  const formatDurationDisplay = (totalSeconds) => {
+    if (!totalSeconds && totalSeconds !== 0) return 'En curso'
+
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    } else {
+      return `${minutes}m`
+    }
+  }
+
+  const statusLabel = (status) => {
+    if (status === 'active') return 'Activo'
+    if (status === 'paused') return 'Pausado'
+    return 'Finalizado'
   }
 
   if (loading) return <div className="history-loading">Cargando historial...</div>
@@ -57,8 +69,7 @@ function History({ user }) {
               <div className="history-info">
                 <span className="history-date">{formatDate(session.start_time).split(',')[0]}</span>
                 <span className={`history-status status-${session.status}`}>
-                  {session.status === 'active' ? '🟢 Activo' : 
-                   session.status === 'paused' ? '⏸️ Pausado' : '🔴 Finalizado'}
+                  {statusLabel(session.status)}
                 </span>
               </div>
               <div className="history-times">
@@ -71,8 +82,8 @@ function History({ user }) {
                   <span className="value">{formatDate(session.end_time).split(',')[1]}</span>
                 </div>
                 <div>
-                  <span className="label">Duración</span>
-                  <span className="value duration">{calculateDuration(session.start_time, session.end_time)}</span>
+                  <span className="label">Duracion</span>
+                  <span className="value duration">{formatDurationDisplay(session.duration)}</span>
                 </div>
               </div>
             </div>
