@@ -90,13 +90,78 @@ Una vista general de cómo está organizado el código:
 ```
 src/
 ├── components/
-│   ├── Login.jsx       # Interfaz de Inicio de Sesión
-│   ├── Signup.jsx      # Interfaz de Registro de Usuario
-│   ├── Dashboard.jsx   # Panel Principal y Navegación
-│   ├── Tracker.jsx     # Lógica del Cronómetro y Control de Tiempo
-│   └── History.jsx     # Vista del Historial de Jornadas
+│   ├── Login.jsx           # Interfaz de Inicio de Sesión
+│   ├── Signup.jsx          # Interfaz de Registro de Usuario
+│   ├── Dashboard.jsx       # Panel Principal y Navegación
+│   ├── Tracker.jsx         # Lógica del Cronómetro y Control de Tiempo
+│   └── History.jsx         # Vista del Historial de Jornadas
 ├── config/
-│   └── supabaseClient.js # Cliente de conexión a Supabase
-├── App.jsx             # Componente Raíz y Rutas
-└── main.jsx            # Punto de Entrada de React
+│   └── supabaseClient.js   # Cliente de conexión a Supabase
+├── App.jsx                 # Componente Raíz y Rutas
+└── main.jsx                # Punto de Entrada de React
+
+.agent/
+├── rules/
+│   └── buenaspracticas.md  # Directivas siempre activas para el agente
+└── skills/
+    ├── rpsoft-ui/
+    │   └── SKILL.md        # Skill de diseño y maquetación
+    └── rpsoft-supabase/
+        └── SKILL.md        # Skill de integración con Supabase
+
+docs/
+└── db-standards.md         # Estándares de base de datos del proyecto
 ```
+
+---
+
+## 🤖 Cómo usar las Skills
+
+Las **skills** son instrucciones especializadas que el agente de IA **Antigravity** lee automáticamente antes de ejecutar cualquier tarea relacionada. Garantizan que todo el código generado siga los estándares del proyecto sin que tengas que repetirlos en cada petición.
+
+### Skills disponibles
+
+#### 🎨 RPSoft UI
+
+**Ubicación:** `.agent/skills/rpsoft-ui/SKILL.md`
+
+Define los estándares de diseño y maquetación del proyecto:
+
+| Área          | Qué define                                                                 |
+| ------------- | -------------------------------------------------------------------------- |
+| Stack         | React 18 + Vite + CSS vanilla (sin librerías externas)                     |
+| Layout        | Sidebar 240 px fijo + `main-content` flexible; drawer off-canvas en mobile |
+| Componentes   | PascalCase, clases CSS en kebab-case con prefijo de componente             |
+| Paleta        | 16 tokens CSS (`--bg-dark`, `--accent-primary`, `--text-primary`, etc.)    |
+| Accesibilidad | Contraste WCAG AA, `focus-visible`, navegación por teclado                 |
+| DoD UI        | Sin errores en consola · Responsive mobile/desktop · PascalCase            |
+
+**Cuándo se activa:** en cualquier tarea que involucre crear o modificar componentes, estilos CSS, layout o colores.
+
+---
+
+#### 🗄️ RPSoft Supabase
+
+**Ubicación:** `.agent/skills/rpsoft-supabase/SKILL.md`
+
+Define los estándares de integración con la base de datos:
+
+| Área      | Qué define                                                                   |
+| --------- | ---------------------------------------------------------------------------- |
+| Naming    | Tablas en `snake_case` plural inglés · Columnas · Tipos preferidos           |
+| RLS       | Políticas base SELECT / INSERT / UPDATE por `auth.uid() = user_id`           |
+| Seguridad | `.env` en `.gitignore` · Solo `anon key` al frontend · Rotación de claves    |
+| Esquema   | Columnas obligatorias (`id`, `user_id`, `created_at`) · Trigger `updated_at` |
+
+**Cuándo se activa:** en cualquier tarea que involucre tablas, columnas, consultas a Supabase, variables de entorno o políticas RLS.
+
+---
+
+### ¿Cómo las activa Antigravity?
+
+1. **Detección automática:** cuando recibes una tarea, Antigravity evalúa el contexto y determina qué skills son relevantes.
+2. **Lectura del skill:** antes de escribir ningún código, lee el archivo `SKILL.md` correspondiente con la herramienta `view_file`.
+3. **Aplicación:** todo el código generado cumple las convenciones del skill — naming, variables CSS, RLS, try/catch, etc.
+4. **Sin configuración extra:** no necesitas mencionar las skills en cada petición; el agente las consulta por sí solo siempre que sean aplicables.
+
+> Si el agente lista los skills antes de actuar (como cuando le preguntas explícitamente), confirmará cuál usará y por qué.
