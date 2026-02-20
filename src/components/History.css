@@ -69,28 +69,80 @@
 .history-times {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   text-align: center;
+  gap: 0.5rem;
 }
 
-.history-times div {
+.history-time-block {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  align-items: center;
+}
+
+/* Columna de duración: ligeramente más ancha para los números */
+.history-time-block--duration {
+  min-width: 80px;
 }
 
 .history-times .label {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
 }
 
 .history-times .value {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-family: monospace;
+  color: var(--text-primary);
 }
 
-.history-times .duration {
+/* --- Duración --- */
+.history-duration {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
   color: var(--accent-highlight);
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: monospace;
+  letter-spacing: 0.01em;
+}
+
+/* Número con tamaño mayor */
+.dur-num {
+  font-size: 1.15rem;
+}
+
+/* Unidad con tamaño menor y opacidad */
+.dur-unit {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.65;
+  margin-right: 3px;
+  letter-spacing: 0;
+}
+
+/* Sesión aún activa / sin duración final */
+.history-duration--live {
+  color: var(--accent-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: inline-block;
+}
+
+/* --- Estado de error --- */
+.history-error {
+  color: var(--accent-secondary);
+  background-color: rgba(255, 139, 148, 0.08);
+  border: 1px solid rgba(255, 139, 148, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.2rem;
+  font-size: 0.9rem;
+  text-align: center;
 }
