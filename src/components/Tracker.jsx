@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../config/supabaseClient";
+import { sessionsService } from "../services/sessionsService";
 import "./Tracker.css";
 
+/**
+ * Componente Tracker: Gestiona el inicio, pausa y fin de la jornada.
+ * Sigue el DoD de UI de RPSoft.
+ */
 function Tracker({ user }) {
   const [activeSession, setActiveSession] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [duration, setDuration] = useState(0);
 
@@ -33,48 +37,41 @@ function Tracker({ user }) {
     return () => clearInterval(interval);
   }, [activeSession?.status]);
 
-  // Cargar sesión activa al montar el componente
+  // Cargar sesión activa al montar o cambiar usuario
   useEffect(() => {
-    const checkActiveSession = async () => {
+    const fetchActiveSession = async () => {
       if (!user?.id) return;
 
       setLoading(true);
+      setError(null);
       try {
-        const { data, error } = await supabase
-          .from("work_sessions")
-          .select("*")
-          .eq("user_id", user.id)
-          .in("status", ["active", "paused"])
-          .order("start_time", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (error && error.code !== "PGRST116") throw error;
-
+        const data = await sessionsService.getActiveSession(user.id);
+        
         if (data) {
           setActiveSession(data);
 
           if (data.status === "active") {
-            // Calcular tiempo transcurrido desde start_time más la duración acumulada
+            // Cálculo del tiempo transcurrido
             const startTime = new Date(data.start_time);
             const now = new Date();
             const elapsed = Math.floor((now - startTime) / 1000);
-            // Si hay duración acumulada previa (de pausas anteriores), la sumamos
             const accumulated = data.duration || 0;
             setDuration(accumulated + elapsed);
           } else {
             setDuration(data.duration || 0);
           }
+        } else {
+          setActiveSession(null);
+          setDuration(0);
         }
       } catch (err) {
-        console.error("Error verificando sesión:", err.message);
-        setError(err.message);
+        setError("No se pudo cargar la sesión actual. Inténtalo de nuevo.");
       } finally {
         setLoading(false);
       }
     };
 
-    checkActiveSession();
+    fetchActiveSession();
   }, [user]);
 
   // Iniciar Jornada
@@ -83,82 +80,45 @@ function Tracker({ user }) {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
-        .from("work_sessions")
-        .insert([
-          {
-            user_id: user.id,
-            status: "active",
-            start_time: new Date().toISOString(),
-            duration: 0,
-          },
-        ])
-        .select()
-        .single();
-
-      if (error) throw error;
-
+      const data = await sessionsService.startSession(user.id);
       setActiveSession(data);
       setDuration(0);
     } catch (err) {
-      setError(err.message);
+      setError("Error al iniciar la jornada: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Pausar Jornada
+  // Pausar Jornada (Nueva lógica con tabla work_pauses)
   const handlePause = async () => {
     if (!activeSession?.id) return;
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
-        .from("work_sessions")
-        .update({
-          status: "paused",
-          pause_time: new Date().toISOString(),
-          duration: duration,
-        })
-        .eq("id", activeSession.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setActiveSession(data);
+      await sessionsService.startPause(activeSession.id, user.id, duration);
+      
+      // Refrescamos los datos locales
+      const updatedData = await sessionsService.getActiveSession(user.id);
+      setActiveSession(updatedData);
     } catch (err) {
-      setError(err.message);
+      setError("Error al pausar la jornada: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Reanudar Jornada
+  // Reanudar Jornada (Nueva lógica con tabla work_pauses)
   const handleResume = async () => {
     if (!activeSession?.id) return;
     setLoading(true);
     setError(null);
     try {
-      // Al reanudar, actualizamos start_time al momento actual para que el
-      // cronómetro calcule correctamente desde aquí, sumando la duración acumulada
-      const { data, error } = await supabase
-        .from("work_sessions")
-        .update({
-          status: "active",
-          start_time: new Date().toISOString(),
-          pause_time: null,
-        })
-        .eq("id", activeSession.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
+      const data = await sessionsService.resumeSession(activeSession.id, user.id);
       setActiveSession(data);
-      // duration se mantiene en el estado local (acumulado antes de la pausa)
+      // La duración se mantiene acumulada en el estado local
     } catch (err) {
-      setError(err.message);
+      setError("Error al reanudar la jornada: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -167,30 +127,26 @@ function Tracker({ user }) {
   // Finalizar Jornada
   const handleStop = async () => {
     if (!activeSession?.id) return;
+    
+    const confirmStop = window.confirm("¿Seguro que deseas finalizar tu jornada?");
+    if (!confirmStop) return;
+
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
-        .from("work_sessions")
-        .update({
-          status: "completed",
-          end_time: new Date().toISOString(),
-          duration: duration,
-        })
-        .eq("id", activeSession.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
+      await sessionsService.stopSession(activeSession.id, duration);
       setActiveSession(null);
       setDuration(0);
     } catch (err) {
-      setError(err.message);
+      setError("Error al finalizar la jornada: " + err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  if (loading && !activeSession) {
+    return <div className="tracker-loading">Cargando estado...</div>;
+  }
 
   return (
     <div className="tracker-container">
@@ -203,24 +159,24 @@ function Tracker({ user }) {
           <button
             onClick={handleStart}
             disabled={loading}
-            className="btn-start"
+            className="tracker-btn-start"
           >
             {loading ? "Iniciando..." : "Iniciar Jornada"}
           </button>
         ) : (
-          <div className="active-controls">
-            <div className={`status-badge status-${activeSession.status}`}>
+          <div className="tracker-active-controls">
+            <div className={`tracker-status-badge status-${activeSession.status}`}>
               {activeSession.status === "active" ? "● En curso" : "⏸ Pausado"}
             </div>
 
-            <div className="action-buttons">
+            <div className="tracker-action-buttons">
               {activeSession.status === "active" && (
                 <button
                   onClick={handlePause}
                   disabled={loading}
-                  className="btn-pause"
+                  className="tracker-btn-pause"
                 >
-                  Pausar
+                  {loading ? "..." : "Pausar"}
                 </button>
               )}
 
@@ -228,23 +184,23 @@ function Tracker({ user }) {
                 <button
                   onClick={handleResume}
                   disabled={loading}
-                  className="btn-resume"
+                  className="tracker-btn-resume"
                 >
-                  Reanudar
+                  {loading ? "..." : "Reanudar"}
                 </button>
               )}
 
               <button
                 onClick={handleStop}
                 disabled={loading}
-                className="btn-stop"
+                className="tracker-btn-stop"
               >
-                Finalizar
+                Finalizar Jornada
               </button>
             </div>
 
-            <div className="status-display">
-              <div className="timer-display">{formatDuration(duration)}</div>
+            <div className="tracker-status-display">
+              <div className="tracker-timer-display">{formatDuration(duration)}</div>
             </div>
           </div>
         )}

@@ -1,27 +1,51 @@
 :root {
-  /* Colorful Dark Theme Palette based on 'Rumah' reference */
-  --bg-dark: #0f1014;       /* Deepest background */
-  --bg-card: #1b1c21;       /* Card background */
-  --bg-sidebar: #15161a;    /* Sidebar background */
-  
-  --text-primary: #ffffff;
-  --text-secondary: #8b8d96;
-  
-  --accent-primary: #a8e6cf; /* Mint green from Upgrade Pro/Air Con */
-  --accent-secondary: #ff8b94; /* Soft red for alerts/stop */
-  --accent-highlight: #dcedc1; /* Soft yellow/green */
+  /* Fondos */
+  --color-bg-base: #0f1117;
+  --color-bg-surface: #1a1d27;
+  --color-bg-elevated: #252836;
+  --color-bg-sidebar: #13151f;
 
+  /* Acento principal */
+  --color-accent: #6c63ff;
+  --color-accent-hover: #5a52d5;
+  --color-accent-light: #6c63ff22;
+
+  /* Textos */
+  --color-text-primary: #e8eaf0;
+  --color-text-secondary: #9598a8;
+  --color-text-muted: #5c5f70;
+
+  /* Bordes */
+  --color-border: #2a2d3e;
+  --color-border-focus: #6c63ff;
+
+  /* Semánticos */
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
+
+  /* Radios */
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 8px;
+
+  /* Compatibilidad con variables previas (deprecado) */
+  --bg-dark: var(--color-bg-base);
+  --bg-card: var(--color-bg-surface);
+  --bg-sidebar: var(--color-bg-sidebar);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --accent-primary: var(--color-accent);
+  --accent-secondary: var(--color-error);
 
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: var(--text-primary);
-  background-color: var(--bg-dark);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-base);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
